@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <script src="vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
+  <title>vue-console</title>
+  <style>
+    .tab-button {
+      padding: 6px 10px;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      background: #f0f0f0;
+      margin-bottom: -1px;
+      margin-right: -1px;
+    }
+
+    .tab-button:hover {
+      background: #e0e0e0;
+    }
+
+    .tab-button.active {
+      background: #e0e0e0;
+    }
+
+    .tab {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    .posts-tab {
+      display: flex;
+    }
+
+    .posts-sidebar {
+      max-width: 40vw;
+      margin: 0;
+      padding: 0 10px 0 0;
+      list-style-type: none;
+      border-right: 1px solid #ccc;
+    }
+
+    .posts-sidebar li {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .posts-sidebar li:hover {
+      background: #eee;
+    }
+
+    .posts-sidebar li.selected {
+      background: lightblue;
+    }
+
+    .selected-post-container {
+      padding-left: 10px;
+    }
+
+    .selected-post> :first-child {
+      margin-top: 0;
+      padding-top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="props-app">
+    <!-- 错误写法 -->
+    <!-- <blog-post v-bind:postTitle="postTitle"></blog-post> -->
+    <blog-post v-bind:post="post" mmp="mmp"></blog-post>
+    <br>
+    <base-input label="username" v-model="username" required placeholder="输入你的username"></base-input>
+    <p>{{ username }}</p>
+    <br>
+  </div>
+
+  <div id="event-app">
+    <base-checkbox v-model="checked"></base-checkbox>
+    <p>{{ checked }}</p>
+    <span>
+      <sync-component :show.sync="showVal"
+        style="padding: 30px 20px 30px 5px;border:1px solid #ddd;margin-bottom: 10px;"></sync-component>
+      <p>showVal值: {{ showVal }}</p>
+      <button @click="changeShowVal">ChangeShowVal</button>
+  </div>
+
+  <div id="slot-app">
+    <slot-component v-bind:url="urlVal">
+      <span>{{ slotVal }}</span><br>
+    </slot-component>
+    <br>
+    <base-layout>
+      <template v-slot:header>
+        <h1>这是header</h1>
+      </template>
+      <!-- <template v-slot:default>
+        <p>这是默认slot</p>
+      </template> -->
+      <template v-slot:footer>
+        <p>这是footer</p>
+      </template>
+    </base-layout>
+    <br>
+    <current-user v-bind:user="userVal">
+    </current-user>
+    <br>
+    <current-user v-bind:user="userVal">
+      <template>
+        {{ userVal.firstName }}
+      </template>
+    </current-user>
+    <br>
+    <base-layout>
+      <!-- 在 DOM 中使用模板时这段代码会被转换为 `v-slot:[slotname]` -->
+      <template v-slot:[slotName]>
+        <p>动态插槽名</p>
+      </template>
+      <template #header>
+        <p>插槽名缩写</p>
+      </template>
+    </base-layout>
+    <br>
+    <todo-list v-bind:todos="todoList">
+      <template v-slot:todo="{ todo }">
+        <span v-if="todo.isComplete">✓</span>
+        <span v-else>✘</span>
+        {{ todo.text }}
+      </template>
+    </todo-list>
+  </div>
+
+  <div id="async-app">
+    <div>
+      <button v-for="tab in tabs" v-bind:key="tab" v-bind:class="['tab-button', { active: currentTab === tab}]"
+        v-on:click="currentTab = tab">{{ tab }}
+      </button>
+      <div v-if="currentTab === 'Posts'">
+        <keep-alive>
+          <component
+            v-bind:is="currentTabComponent"
+            v-bind:posts="postList"
+            v-bind:selected-id.sync="selectedId"
+            class="tab"
+          ></component>
+        </keep-alive>
+      </div>
+      <div v-else>
+        <keep-alive>
+          <component v-bind:is="currentTabComponent" class="tab"></component>
+        </keep-alive>
+      </div>
+      <p>Post {{ selectedId }}</p>
+    </div>
+    <br>
+    <async-example></async-example>
+    <br>
+    <div v-for="dateInput in dateInputList">
+      <base-input
+        v-bind:ref="dateInput.ref"
+        v-bind:key="dateInput.id"
+        v-bind:label="dateInput.label"
+        v-model="dateInput.date"
+        v-bind:type="inputType"
+      ></base-input>
+    </div>
+    <ul>
+      <li v-for="dateInput in dateInputList">
+        {{ dateInput.id }} - {{ dateInput.date }}
+      </li>
+    </ul>
+  </div>
+
+
+
+
+
+  <script>
+    Vue.component('blog-post', {
+      props: {
+        post: {
+          type: Object,
+          default: function () {
+            return {
+              title: 'vue learn',
+              author: 'zhe',
+              content: 'mmp'
+            }
+          },
+          // validator: function (value) {
+          //     for (let val in value) {
+          //       if (!(value[val] instanceof String)) {
+          //         return false
+          //       }
+          //     }
+          //     return true
+          // }
+        }
+      },
+      template: `
+        <div>
+          <h3>{{ post.title }}</h3>
+          <strong>{{ post.author }}</strong>
+          <p>{{ post.content }}</p>
+        </div>
+      `
+    })
+    Vue.component('base-input', {
+      inheritAttrs: false,
+      props: {
+        label: {
+          default: ''
+        },
+        value: {
+          default: ''
+        },
+        type: {
+          default: 'text'
+        }
+      },
+      computed: {
+        inputListeners: function () {
+          var vm = this
+          return Object.assign({},
+            this.$listeners,
+            {
+              input: function () {
+                vm.$emit('input', event.target.value)
+              }
+            }
+          )
+        }
+      },
+      template: `
+        <div>
+          <label>
+            {{ label }}
+            <input
+              v-bind="$attrs"
+              v-bind:value="value"
+              v-bind:type="type"
+              v-on="inputListeners"
+            >
+          </label>
+          <slot></slot>
+        </div>
+      `
+    })
+    var props_app = new Vue({
+      el: '#props-app',
+      data: {
+        post: {
+          title: "111",
+          author: 'zhe',
+          content: 'mmp'
+        },
+        username: '',
+      }
+    })
+
+    Vue.component('base-checkbox', {
+      model: {
+        prop: 'checked',
+        event: 'change',
+      },
+      props: {
+        checked: Boolean
+      },
+      template: `
+        <input
+          type="checkbox"
+          v-bind:checked="checked"
+          v-on:change="$emit('change', $event.target.checked)"
+        >
+      `
+    })
+    Vue.component('sync-component', {
+      props: ['show'],
+      methods: {
+        closeDiv: function () {
+          this.$emit('update:show', false);
+        }
+      },
+      template: `
+        <div v-show="show">
+          <p>默认初始值是 {{ show }}, 显示</p>
+          <button @click.stop="closeDiv">关闭</button>
+        </div>
+      `,
+    })
+    var event_app = new Vue({
+      el: '#event-app',
+      data: {
+        checked: true,
+        showVal: true,
+      },
+      methods: {
+        changeShowVal: function () {
+          this.showVal = !this.showVal
+        }
+      }
+    })
+
+    Vue.component('slot-component', {
+      props: ['url'],
+      template: `
+        <div>
+          <p>这是slot-component</p>
+          <p>url: {{ url }}</p>
+          <slot>没有slot<br></slot>
+          <a v-bind:href="url" target="_blank">新窗口打开 {{ url }}</a>
+        </div>
+      `,
+    })
+    Vue.component('base-layout', {
+      template: `
+        <div class="container">
+          <p>默认slot</p>
+          <slot>默认slot</slot>
+          <header>
+            <p>header</p>
+            <slot name="header"></slot>
+          </header>
+          <main>
+            <p>main</p>
+            <slot name="main"></slot>
+          </main>
+          <footer>
+            <p>footer</p>
+            <slot name="footer"></slot>
+          </footer>
+        </div>
+      `
+    })
+    Vue.component('current-user', {
+      props: ['user'],
+      template: `
+        <div>
+          <span>
+            <slot>slot {{ user.lastName }}</slot>
+          </span>
+        </div>
+      `,
+    })
+    Vue.component('todo-list', {
+      props: ['todos'],
+      template: `
+        <div>
+          <ul>
+            <li
+              v-for="todo in todos"
+              v-bind:key="todo.id"
+            >
+              <slot name="todo" v-bind:todo="todo">
+                {{ todo.id }} - {{ todo.text }}
+              </slot>
+            </li>
+          </ul>
+        </div>
+      `
+    })
+    var slot_app = new Vue({
+      el: '#slot-app',
+      data: {
+        slotVal: '百度',
+        urlVal: 'https://www.baidu.com',
+        userVal: {
+          firstName: 'Z',
+          lastName: 'Zhe',
+        },
+        slotname: 'main',
+        todoList: [
+          { id: 1, text: '一', isComplete: true },
+          { id: 2, text: '二', isComplete: false },
+          { id: 3, text: '三', isComplete: true }
+        ],
+      },
+    })
+
+
+    Vue.component('tab-posts', {
+      data: function () {
+        return {
+          currentPosts: this.posts,
+          selectedPost: null,
+        }
+      },
+      props: {
+        posts: {
+          default: []
+        }
+      },
+      methods: {
+        changeSelectedPost: function (post) {
+          this.selectedPost = post
+          this.$emit('update:selectedId', post.id)
+        }
+      },
+      template: `
+        <div class="posts-tab">
+          <ul class="posts-sidebar">
+            <li
+              v-for="post in currentPosts"
+              v-bind:key="post.id"
+              v-bind:class="{ selected: post === selectedPost }"
+              v-on:click="changeSelectedPost(post)"
+            >
+              {{ post.title }}
+            </li>
+          </ul>
+          <div class="selected-post-container">
+            <div
+              v-if="selectedPost"
+              class="selected-post"
+            >
+              <h3>{{ selectedPost.title }}</h3>
+              <div v-html="selectedPost.content"></div>
+            </div>
+            <strong v-else>
+              选择一个POST
+            </strong>
+          </div>
+        </div>
+      `
+    })
+    Vue.component('tab-archive', {
+      template: '<div>Archive component</div>'
+    })
+    Vue.component('async-example', function(resolve, reject){
+      setTimeout(function(){
+        resolve({
+          template: `<div>I am async!</div>`
+        })
+      }, 5000)
+    })
+
+    var async_app = new Vue({
+      el: '#async-app',
+      data: {
+        postList: [
+          { id: 1, title: '标题1', content: '内容一' },
+          { id: 2, title: '标题2', content: '内容2' },
+          { id: 3, title: '标题3', content: '内容3' },
+          { id: 4, title: '标题4', content: '内容4' },
+        ],
+        selectedPostVal: { id: 5, title: '标题5', content: '内容5' },
+        selectedId: null,
+        currentTab: 'Posts',
+        tabs: ['Posts', 'Archive'],
+        dateInputList: [
+          { id: 1, date: '' , ref: 'date1', label: '时间1' },
+          { id: 2, date: '' , ref: 'date2', label: '时间2' },
+          { id: 3, date: '' , ref: 'date3', label: '时间3' },
+          { id: 4, date: '' , ref: 'date4', label: '时间4' },
+        ],
+        inputType: 'date'
+      },
+      computed: {
+        currentTabComponent: function () {
+          return 'tab-' + this.currentTab.toLowerCase()
+        }
+      },
+      methods: {
+        attachDatePicker: function(refName){
+          var picker = new Pikaday({
+            field: this.$refs[refName],
+            format: 'YYYY-MM-DD'
+          })
+          this.$once('hook:beforeDestroy', function(){
+            picker.destroy()
+          })
+        }
+      },
+      mounted: function(){
+        for(var i=0; i < this.dateInputList.length; i++){
+          this.attachDatePicker(this.dateInputList[i].ref)
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

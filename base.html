@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <script src="vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+  <style>
+    .tab-button {
+      padding: 6px 10px;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      background: #f0f0f0;
+      margin-bottom: -1px;
+      margin-right: -1px;
+    }
+
+    .tab-button:hover {
+      background: #e0e0e0;
+    }
+
+    .tab-button.active {
+      background: #e0e0e0;
+    }
+
+    .tab {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  </style>
+  <title>vue-console</title>
+</head>
+
+<body>
+  <div id="app">
+    {{ message }}
+  </div>
+
+  <div id="app-2">
+    <span v-bind:title="message">
+      鼠标悬停
+    </span>
+  </div>
+
+  <div id="app-3">
+    <p v-if="seen">现在你看到我了</p>
+  </div>
+
+  <div id="app-4">
+    <ol>
+      <li v-for="todo in todos">
+        {{ todo.text }}
+      </li>
+    </ol>
+  </div>
+
+  <div id="app-5">
+    <p>{{ message }}</p>
+    <button v-on:click="reverseMessage">反转消息</button>
+  </div>
+
+  <div id="app-6">
+    <p>{{ message }}</p>
+    <input v-model="message" />
+  </div>
+
+  <div id="app-7">
+    <ol>
+      <todo-item v-for="item in groceryList" v-bind:todo="item" v-bind:key="item.id"></todo-item>
+    </ol>
+  </div>
+
+  <div id="obj-freeze">
+    <p>{{ foo }}</p>
+    <button v-on:click="foo = 'bax'">Change it</button>
+    <button v-on:click="obj_freeze">obj freeze</button>
+  </div>
+
+  <div id="compute-app">
+    <p>Original message: "{{ message }}"</p>
+    <p>Computed reversed message: "{{ computedReverseMessage }}"</p>
+    <p>Method reversed message: "{{ methodreverseMessage() }}"</p>
+    <P>Watch message: {{ watchMessage }}</P>
+    <input v-model="message" />
+  </div>
+
+  <div id="console-app">
+    <div id="hi" @click="changeName">{{ name }}</div>
+  </div>
+
+  <div id="watch-app">
+    <p>
+      输入一个以问号结束的问题, 得到一个随机的Yes/No回答:
+      <input v-model="question" />
+    </p>
+    <p>{{ answer }}</p>
+  </div>
+
+  <div v-bind:class="classObj" id="class-app">
+    <p>classObj</p>
+  </div>
+
+  <div v-bind:style="styleObj" id="style-app">
+    <p>styleObj</p>
+  </div>
+
+  <div id="ifelse-app">
+    <h1 v-if="awesome">Vue is awesome!</h1>
+    <h1 v-else>Oh no 😢</h1>
+    <button v-on:click="changeAwesome">切换awesome</button>
+    <template v-if="loginType === 'username'">
+      <label>用户名</label>
+      <input placeholder="输入你的用户名" key="username-input" />
+    </template>
+    <template v-else>
+      <label>Email</label>
+      <input placeholder="输入Email" key="email-input" />
+    </template>
+    <button v-on:click="changeLoginType">切换loginType</button>
+  </div>
+
+  <div id="for-app">
+    <ul>
+      <li v-for="(item, index) in items">
+        {{ item.message }} - {{ index }}
+      </li>
+    </ul>
+    <ul>
+      <li v-for="(value, name) in objects">
+        {{ name }} : {{ value }}
+      </li>
+    </ul>
+    <button v-on:click="addAttribute">添加属性</button>
+    <ul>
+      <li v-for="(n, index) in filterNumbers">
+        {{ n }} - {{ index }}
+      </li>
+    </ul>
+    <ul>
+      <li v-for="(n, index) in reverseNumbers(numbers2)">
+        {{ n }} - {{ index }}
+      </li>
+    </ul>
+    <ul>
+      <template v-for="(item, index) in items">
+        <li>{{ item.message }}</li>
+        <li class="li-index" role="presentation">{{ index }}</li>
+      </template>
+    </ul>
+    <ul>
+      <li v-for="(n, index) in numbers2" v-if="n % 2 === 0">
+        {{ n }} - {{ index }}
+      </li>
+      <li v-for="(n, index) in numbers2" v-if="index % 2 === 0">
+        {{ n }} - {{ index }}
+      </li>
+    </ul>
+    <ul v-if="numbers1.length">
+      <li v-for="(n, index) in numbers1">
+        {{ n }} - {{ index }}
+      </li>
+    </ul>
+    <p v-else>numbers1.length is 0</p>
+  </div>
+
+  <div id="on-app">
+    <p>加1按钮使用次数{{ counter }}</p>
+    <button v-on:click="counter += 1">加1</button>
+    <button v-on:click.once="greet">Greet</button>
+    <button v-on:click="warn('表单还不能够提交', $event)">Submit</button>
+    <!-- <input v-on:keyup.enter="alert('enter');"> -->
+    <input v-on:keyup.enter="keyupEnter">
+    <input @keyup.alt.c="altC">
+    <div @click.alt="altC">
+      <p>altc</p>
+    </div>
+    <button @click.ctrl.exact="altC">A</button>
+  </div>
+
+  <div id="model-app">
+    <input type="text" v-model="message" placeholder="edit me">
+    <p>message is : {{ message }}</p>
+    <span>Multiline message is:</span>
+    <p style="white-space: pre-line;">{{ message }}</p>
+    <br>
+    <textarea v-model="message" placeholder="add nultiple lines"></textarea>
+    <br>
+    <input type="checkbox" id="checkbox" v-model="checked">
+    <label for="checkbox">{{ checked }}</label>
+    <br>
+    <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+    <label for="jack">Jack</label>
+    <input type="checkbox" id="john" value="John" v-model="checkedNames">
+    <label for="john">John</label>
+    <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+    <label for="mike">Mike</label>
+    <br>
+    <span>Checked names: {{ checkedNames }}</span>
+    <br>
+    <input type="radio" id="one" value="One" v-model="picked">
+    <label for="one">One</label>
+    <br>
+    <input type="radio" id="two" value="Two" v-model="picked">
+    <label for="two">Two</label>
+    <br>
+    <span>Picked: {{ picked }}</span>
+    <br>
+    <input type="radio" id="one" value="One" v-model="picked1">
+    <label for="one">One</label>
+    <br>
+    <input type="radio" id="two" value="Two" v-model="picked1">
+    <label for="two">Two</label>
+    <br>
+    <span>Picked: {{ picked1 }}</span>
+    <br>
+    <select v-model="selected">
+      <option disabled value="init">请选择</option>
+      <option value="a">A</option>
+      <option value="b">B</option>
+      <option value="c">C</option>
+    </select>
+    <br>
+    <span>Selected: {{ selectedName }}</span>
+    <br>
+    <select v-model="multipleSelected" multiple style="width: 50px;">
+      <option value="a">A</option>
+      <option value="b">B</option>
+      <option value="c">C</option>
+    </select>
+    <br>
+    <span>Selected: {{ multipleSelectedName }}</span>
+    <br>
+    <select v-model="optionSelected">
+      <option v-for="(val, key) in options" v-bind:value="key" v-bind:id="val.id">
+        {{ val.name }}
+      </option>
+    </select>
+    <span>Selected: {{ optionName }}</span>
+  </div>
+
+  <div id="component-app">
+    <button-counter></button-counter>
+    <button-counter></button-counter>
+    <button-counter></button-counter>
+    <br>
+    <button-counter-data></button-counter-data>
+    <button-counter-data></button-counter-data>
+    <button-counter-data></button-counter-data>
+    <br>
+    <div :style="{ fontSize: postFontSize + 'em' }">
+      <blog-post v-for="post in posts" v-bind:key="post.id" v-bind:post="post"
+        v-on:enlarge-text="postFontSize += $event"></blog-post>
+    </div>
+    <br>
+    <custom-input v-model="searchText"></custom-input>
+    <p>{{ searchText }}</p>
+    <br>
+    <alert-box v-bind:message="message"></alert-box>
+    <br>
+
+    <div>
+      <button v-for="tab in tabs" v-bind:key="tab" v-bind:class="['tab-button', {active: currentTab === tab}]"
+        v-on:click="currentTab = tab">{{ tab }}</button>
+      <component v-bind:is="currentTabComponent" class='tab'></component>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'Hello vue111!'
+      }
+    })
+    var app2 = new Vue({
+      el: '#app-2',
+      data: {
+        message: '页面加载于' + new Date().toLocaleString()
+      }
+    })
+    var app3 = new Vue({
+      el: '#app-3',
+      data: {
+        seen: true
+      }
+    })
+    var app4 = new Vue({
+      el: '#app-4',
+      data: {
+        todos: [
+          { text: '学习使我快乐!' },
+          { text: '学习vue' },
+          { text: '学习使我vue' }
+        ]
+      }
+    })
+    var app5 = new Vue({
+      el: '#app-5',
+      data: {
+        message: 'Hello vue.js'
+      },
+      methods: {
+        reverseMessage: function () {
+          this.message = this.message
+            .split('')
+            .reverse()
+            .join('')
+        }
+      }
+    })
+    var app6 = new Vue({
+      el: '#app-6',
+      data: {
+        message: '你妈好'
+      }
+    })
+    Vue.component('todo-item', {
+      props: ['todo'],
+      template: '<li>{{ todo.text }}</li>'
+    })
+    var app7 = new Vue({
+      el: '#app-7',
+      data: {
+        groceryList: [
+          { id: 0, text: '蔬菜' },
+          { id: 1, text: '奶酪' },
+          { id: 23, text: '随便了' }
+        ]
+      }
+    })
+    var obj = {
+      foo: 'bar'
+    }
+    // Object.freeze(obj);
+    var obj_freeze_app = new Vue({
+      el: '#obj-freeze',
+      data: obj,
+      methods: {
+        obj_freeze: function () {
+          Object.freeze(obj)
+        }
+      }
+    })
+    var compute_app = new Vue({
+      el: '#compute-app',
+      data: {
+        message: 'Hello',
+        watchMessage: 'watch Hello'
+      },
+      computed: {
+        computedReverseMessage: function () {
+          console.log('computedReverseMessage')
+          return this.message
+            .split('')
+            .reverse()
+            .join('')
+        }
+      },
+      methods: {
+        methodreverseMessage: function () {
+          console.log('methodreverseMessage')
+          return this.message
+            .split('')
+            .reverse()
+            .join('')
+        }
+      },
+      watch: {
+        message: function (val) {
+          console.log('watchMessage')
+          this.watchMessage =
+            this.message
+              .split('')
+              .reverse()
+              .join('') +
+            ' watchMessage ' +
+            val
+        }
+      }
+    })
+    var watch_app = new Vue({
+      el: '#watch-app',
+      data: {
+        question: '',
+        answer: '输入一个问题'
+      },
+      created: function () {
+        // ref https://www.lodashjs.com/docs/latest#_debouncefunc-wait0-options
+        this.debouncedGetAnswer = _.debounce(this.getAnswer, 500)
+      },
+      watch: {
+        question: function (newQuestion, oldquestion) {
+          ; (this.answer = '等待问题输入完成...'), this.debouncedGetAnswer()
+        }
+      },
+      methods: {
+        getAnswer: function () {
+          // ref https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+          if (this.question.endsWith('?') == false) {
+            this.answer = '问题必须以?结束!'
+            return
+          }
+          this.answer = '正在思考问题...'
+          var axiosAnswer = this
+          axios
+            .get('https://yesno.wtf/api')
+            .then(function (response) {
+              console.log(response.data)
+              axiosAnswer.answer = response.data.answer
+            })
+            .catch(function (error) {
+              axiosAnswer.answer = '思考发生错误' + error
+            })
+        }
+      }
+    })
+    var class_app = new Vue({
+      el: '#class-app',
+      data: {
+        isActive: true,
+        error: null
+      },
+      computed: {
+        classAppObj: function () {
+          return {
+            active: this.isActive && !this.error,
+            'text-danger': this.error
+          }
+        }
+      }
+    })
+    var style_app = new Vue({
+      el: '#style-app',
+      data: {
+        styleObj: {
+          color: 'red',
+          fontSize: '20px'
+        }
+      }
+    })
+    var ifelse_app = new Vue({
+      el: '#ifelse-app',
+      data: {
+        awesome: true,
+        loginType: 'username'
+      },
+      methods: {
+        changeAwesome: function () {
+          this.awesome = !this.awesome
+        },
+        changeLoginType: function () {
+          this.loginType = this.loginType == 'username' ? '' : 'username'
+        }
+      }
+    })
+
+    var for_app = new Vue({
+      el: '#for-app',
+      data: {
+        items: [
+          { message: 'Foo' },
+          { message: 'Bar' },
+          { message: 'Fzz' }
+        ],
+        objects: {
+          title: 'how are you vue?',
+          author: '就这样了',
+          publish: '不知道'
+        },
+        numbers1: [4, 8, 1, 6, 7],
+        numbers2: [1, 5, 8, 4, 1, 5]
+      },
+      methods: {
+        addAttribute: function () {
+          this.objects = Object.assign({}, this.objects, {
+            add1: 'add1',
+            add2: 'add2'
+          })
+        },
+        reverseNumbers: function (numbers) {
+          return numbers.reverse()
+        },
+      },
+      computed: {
+        filterNumbers: function () {
+          return this.numbers1.filter(function (number) {
+            return number % 2 === 0
+          })
+        },
+      }
+    })
+    var on_app = new Vue({
+      el: '#on-app',
+      data: {
+        counter: 0
+      },
+      methods: {
+        greet: function (event) {
+          alert('Hello' + this.counter + '!')
+          if (event) {
+            alert(event.target.tagName)
+          }
+        },
+        warn: function (message, event) {
+          if (event) event.preventDefault()
+          alert(message + event.target.tagName)
+        },
+        keyupEnter: function () {
+          alert('enter')
+        },
+        altC: function () {
+          alert('altc')
+        }
+      }
+    })
+    var model_app = new Vue({
+      el: '#model-app',
+      data: {
+        message: "",
+        checked: false,
+        checkedNames: [],
+        picked: '',
+        picked1: '',
+        selected: '',
+        multipleSelected: [],
+        options: {
+          a: {
+            name: 'A',
+            id: 1
+          },
+          b: {
+            name: 'B',
+            id: 2
+          },
+          c: {
+            name: 'C',
+            id: 3
+          },
+        },
+        optionSelected: '',
+      },
+      computed: {
+        selectedName: function () {
+          return this.selected + ' set'
+        },
+        multipleSelectedName: function () {
+          return this.multipleSelected.join('-')
+        },
+        optionName: function () {
+          if (this.optionSelected) {
+            return this.options[this.optionSelected].id + this.options[this.optionSelected].name
+          }
+          return this.optionSelected
+        }
+      }
+    })
+
+    var counterData = {
+      count: 0
+    }
+
+    Vue.component('button-counter', {
+      data: function () {
+        return {
+          count: 0
+        }
+      },
+      template: '<button v-on:click="count++">点击了 {{ count }} 次.</button>'
+    })
+
+    Vue.component('button-counter-data', {
+      data: function () {
+        return counterData
+      },
+      template: '<button v-on:click="count++">点击了 {{ count }} 次.</button>'
+    })
+
+    Vue.component('blog-post', {
+      // data: function(){
+      //   return {
+      //     postFontSize: 2,
+      //   }
+      // },
+      props: ['post'],
+      template: `
+        <div class="blog-post">
+          <h3>{{ post.title }}</h3>
+          <button v-on:click="$emit('enlarge-text', 0.1)">
+            放大字号
+          </button>
+          <div v-html="post.content"></div>
+        </div>
+      `
+    })
+
+    Vue.component('custom-input', {
+      props: ['value'],
+      template: `
+        <input
+          v-bind:value="value"
+          v-on:input="$emit('input', $event.target.value)"
+        >
+      `,
+    })
+
+    Vue.component('alert-box', {
+      props: ['message'],
+      template: `
+        <div 
+          class="demo-alert-box"
+          style="
+            padding: 10px 20px;
+            background: #f3beb8;
+            border: 1px solid #f09898;
+          "
+        >
+          <strong>Error!</strong>
+          <slot>{{ message }}</slot>
+        </div>
+      `,
+    })
+
+    Vue.component('tab-home', {
+      template: `
+        <div>Home component</div>
+      `,
+    })
+    Vue.component('tab-posts', {
+      template: `
+        <div>Posts component</div>
+      `,
+    })
+    Vue.component('tab-archive', {
+      template: `
+        <div>Archive component</div>
+      `,
+    })
+
+    var component_app = new Vue({
+      el: '#component-app',
+      data: {
+        posts: [
+          { id: 1, title: 'id1', content: '1111111' },
+          { id: 2, title: 'id2', content: '22222222' },
+          { id: 3, title: 'id3', content: '3333333' },
+        ],
+        postFontSize: 1,
+        searchText: '',
+        message: 'Something bad happened.',
+        currentTab: 'Home',
+        tabs: ['Home', 'Posts', 'Archive']
+      },
+      computed: {
+        currentTabComponent: function () {
+          return 'tab-' + this.currentTab.toLowerCase()
+        }
+      }
+    })
+  </script>
+
+
+
+
+
+  <script>
+    var style = 'font-size: 20px;color: blue'
+    var console_app = new Vue({
+      el: '#console-app',
+      data() {
+        return {
+          name: '点我'
+        }
+      },
+      beforeCreate() {
+        console.log('%cI am beforeCreate------ 我在选项里写的', style)
+      },
+      created() {
+        console.log('%cI am created------ 我在选项里写的', style)
+      },
+      beforeMount() {
+        console.log('%cI am beforeMount------ 我在选项里写的', style)
+      },
+      mounted() {
+        console.log('%cI am mounted------ 我在选项里写的', style)
+      },
+      beforeUpdate() {
+        console.log('%cI am beforeUpdate------ 我在选项里写的', style)
+      },
+      updated() {
+        console.log('%cI am updated------ 我在选项里写的', style)
+      },
+      methods: {
+        changeName() {
+          this.name = 'jike'
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
