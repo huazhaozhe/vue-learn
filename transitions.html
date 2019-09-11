@@ -1,368 +1,338 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>vue-console</title>
+    <link rel="stylesheet" href="animate.min.css" />
+    <script src="vue.js"></script>
+    <script src="velocity.min.js"></script>
+    <style>
+      .fade-enter-active,
+      .fade-leave-active {
+        transition: opacity 0.5s;
+      }
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>vue-console</title>
-  <link rel="stylesheet" href="animate.min.css">
-  <script src="vue.js"></script>
-  <script src="velocity.min.js"></script>
-  <style>
-    .fade-enter-active,
-    .fade-leave-active {
-      transition: opacity .5s;
-    }
-
-    .fade-enter,
+      .fade-enter,
     .fade-leave-to
 
     /* .fade-leave-active below version 2.1.8 */
-      {
-      opacity: 0;
-    }
+ {
+        opacity: 0;
+      }
 
-    /* 可以设置不同的进入和离开动画 */
-    /* 设置持续时间和动画函数 */
-    .slide-fade-enter-active {
-      transition: all .3s ease;
-    }
+      /* 可以设置不同的进入和离开动画 */
+      /* 设置持续时间和动画函数 */
+      .slide-fade-enter-active {
+        transition: all 0.3s ease;
+      }
 
-    .slide-fade-leave-active {
-      transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-    }
+      .slide-fade-leave-active {
+        transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+      }
 
-    .slide-fade-enter,
+      .slide-fade-enter,
     .slide-fade-leave-to
 
     /* .slide-fade-leave-active for below version 2.1.8 */
-      {
-      transform: translateX(10px);
-      opacity: 0;
-    }
-
-    .bounce-enter-active {
-      animation: bounce-in .5s;
-    }
-
-    .bounce-leave-active {
-      animation: bounce-in .5s reverse;
-    }
-
-    @keyframes bounce-in {
-      0% {
-        transform: scale(0);
+ {
+        transform: translateX(10px);
+        opacity: 0;
       }
 
-      50% {
-        transform: scale(1.5);
+      .bounce-enter-active {
+        animation: bounce-in 0.5s;
       }
 
-      100% {
-        transform: scale(1);
+      .bounce-leave-active {
+        animation: bounce-in 0.5s reverse;
       }
-    }
 
-    .no-mode-fade-enter-active,
-    .no-mode-fade-leave-active {
-      transition: opacity .5s
-    }
+      @keyframes bounce-in {
+        0% {
+          transform: scale(0);
+        }
 
-    .no-mode-fade-enter,
-    .no-mode-fade-leave-active {
-      opacity: 0
-    }
+        50% {
+          transform: scale(1.5);
+        }
 
+        100% {
+          transform: scale(1);
+        }
+      }
 
-    .no-mode-absolute-demo-wrapper {
-      position: relative;
-      height: 18px;
-    }
+      .no-mode-fade-enter-active,
+      .no-mode-fade-leave-active {
+        transition: opacity 0.5s;
+      }
 
-    .no-mode-absolute-demo-wrapper button {
-      position: absolute;
-    }
+      .no-mode-fade-enter,
+      .no-mode-fade-leave-active {
+        opacity: 0;
+      }
 
-    .no-mode-absolute-fade-enter-active,
-    .no-mode-absolute-fade-leave-active {
-      transition: opacity .5s;
-    }
+      .no-mode-absolute-demo-wrapper {
+        position: relative;
+        height: 18px;
+      }
 
-    .no-mode-absolute-fade-enter,
-    .no-mode-absolute-fade-leave-active {
-      opacity: 0;
-    }
+      .no-mode-absolute-demo-wrapper button {
+        position: absolute;
+      }
 
+      .no-mode-absolute-fade-enter-active,
+      .no-mode-absolute-fade-leave-active {
+        transition: opacity 0.5s;
+      }
 
+      .no-mode-absolute-fade-enter,
+      .no-mode-absolute-fade-leave-active {
+        opacity: 0;
+      }
 
-    .no-mode-translate-demo-wrapper {
-      position: relative;
-      height: 18px;
-    }
+      .no-mode-translate-demo-wrapper {
+        position: relative;
+        height: 18px;
+      }
 
-    .no-mode-translate-demo-wrapper button {
-      position: absolute;
-    }
+      .no-mode-translate-demo-wrapper button {
+        position: absolute;
+      }
 
-    .no-mode-translate-fade-enter-active,
-    .no-mode-translate-fade-leave-active {
-      transition: all 1s;
-    }
+      .no-mode-translate-fade-enter-active,
+      .no-mode-translate-fade-leave-active {
+        transition: all 1s;
+      }
 
-    .no-mode-translate-fade-enter,
-    .no-mode-translate-fade-leave-active {
-      opacity: 0;
-    }
+      .no-mode-translate-fade-enter,
+      .no-mode-translate-fade-leave-active {
+        opacity: 0;
+      }
 
-    .no-mode-translate-fade-enter {
-      transform: translateX(31px);
-    }
+      .no-mode-translate-fade-enter {
+        transform: translateX(31px);
+      }
 
-    .no-mode-translate-fade-leave-active {
-      transform: translateX(-31px);
-    }
-  </style>
-</head>
+      .no-mode-translate-fade-leave-active {
+        transform: translateX(-31px);
+      }
+    </style>
+  </head>
 
-<body>
-
-  <div id="app-1">
-    <button v-on:click="show = !show">切换</button>
-    <transition name="fade">
-      <p v-if="show">hello</p>
-    </transition>
-  </div>
-
-  <div id="app-2">
-    <button @click="show = !show">切换</button>
-    <transition name="slide-fade">
-      <p v-if="show">hello</p>
-    </transition>
-  </div>
-
-  <div id="app-3">
-    <button @click="show = !show">切换</button>
-    <transition name="bounce">
-      <p v-if="show">原教程话太多</p>
-    </transition>
-  </div>
-
-  <div id="app-4">
-    <button @click="show = !show">
-      切换
-    </button>
-    <transition name="custom-classes-transition" enter-active-class="animated tada"
-      leave-active-class="animated bounceOutRight" :duration="{ enter:2000, leave: 5000 }">
-      <p v-if="show">hello</p>
-    </transition>
-  </div>
-
-  <div id="app-5">
-    <button @click="show = !show">
-      切换
-    </button>
-    <transition v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:leave="leave" v-bind:css="false">
-      <p v-if="show">Demo</p>
-    </transition>
-  </div>
-
-  <div id="app-6">
-
-    <!-- <div id="no-mode-fade">
-      <transition name="no-mode-fade">
-        <button @click="buttonOn = !buttonOn" v-bind:key="buttonKey + 'if'"
-          v-if="buttonKey === 'on' ? buttonOn : !buttonOn">
-          {{ buttonMessage }}
-        </button>
-      </transition>
-      <br>
-      <transition name="no-mode-fade">
-        <button @click="buttonOn = !buttonOn" v-bind:key="buttonKey + 'show'"
-          v-show="buttonKey === 'on' ? buttonOn : !buttonOn">
-          {{ buttonMessage }}
-        </button>
+  <body>
+    <div id="app-1">
+      <button v-on:click="show = !show">切换</button>
+      <transition name="fade">
+        <p v-if="show">hello</p>
       </transition>
     </div>
 
-    <br>
-
-    <div id="no-mode-absolute-demo">
-      <div class="no-mode-absolute-demo-wrapper">
-        <transition name="no-mode-absolute-demo">
-          <button @click="buttonOn = !buttonOn" v-bind:key="buttonKey + 'ifAbsolute'"
-            v-if="buttonKey === 'on' ? buttonOn : !buttonOn">
-            {{ buttonMessage }}
-          </button>
-        </transition>
-        <br>
-        <transition name="no-mode-absolute-demo">
-          <button @click="buttonOn = !buttonOn" v-bind:key="buttonKey + 'showAbsolute'"
-            v-show="buttonKey === 'on' ? buttonOn : !buttonOn">
-            {{ buttonMessage }}
-          </button>
-        </transition>
-      </div>
+    <div id="app-2">
+      <button @click="show = !show">切换</button>
+      <transition name="slide-fade">
+        <p v-if="show">hello</p>
+      </transition>
     </div>
 
-    <br>
-
-    <div id="no-mode-translate-demo">
-      <div class="no-mode-translate-demo-wrapper">
-        <transition name="no-mode-translate-demo">
-          <button @click="buttonOn = !buttonOn" v-bind:key="buttonKey + 'ifTranslate'"
-            v-if="buttonKey === 'on' ? buttonOn : !buttonOn">
-            {{ buttonMessage }}
-          </button>
-        </transition>
-        <br>
-        <transition name="no-mode-translate-demo">
-          <button @click="buttonOn = !buttonOn" v-bind:key="buttonKey + 'showTranslate'"
-            v-show="buttonKey === 'on' ? buttonOn : !buttonOn">
-            {{ buttonMessage }}
-          </button>
-        </transition>
-      </div>
+    <div id="app-3">
+      <button @click="show = !show">切换</button>
+      <transition name="bounce">
+        <p v-if="show">原教程话太多</p>
+      </transition>
     </div>
 
+    <div id="app-4">
+      <button @click="show = !show">
+        切换
+      </button>
+      <transition
+        name="custom-classes-transition"
+        enter-active-class="animated tada"
+        leave-active-class="animated bounceOutRight"
+        :duration="{ enter:2000, leave: 5000 }"
+      >
+        <p v-if="show">hello</p>
+      </transition>
+    </div>
 
-    <p>{{ buttonOn }} - {{ buttonKey }}</p> -->
+    <div id="app-5">
+      <button @click="show = !show">
+        切换
+      </button>
+      <transition
+        v-on:before-enter="beforeEnter"
+        v-on:enter="enter"
+        v-on:leave="leave"
+        v-bind:css="false"
+      >
+        <p v-if="show">Demo</p>
+      </transition>
+    </div>
 
-    <transition-button v-bind:class-name="className" v-bind:id-name="idName" v-bind:transition-name="transitionName">
-    </transition-button>
-  </div>
+    <div id="app-6">
+      <transition-button
+        v-for="trButton in trButtonList"
+        v-bind:key="trButton.id"
+        v-bind:class-name="trButton.className"
+        v-bind:id-name="trButton.idName"
+        v-bind:transition-name="trButton.transitionName"
+      >
+      </transition-button>
+    </div>
 
-
-
-  <script>
-    var app_1 = new Vue({
-      el: '#app-1',
-      data: {
-        show: true
-      }
-    })
-    var app_2 = new Vue({
-      el: '#app-2',
-      data: {
-        show: true
-      }
-    })
-    var app_3 = new Vue({
-      el: '#app-3',
-      data: {
-        show: true
-      }
-    })
-    var app_4 = new Vue({
-      el: '#app-4',
-      data: {
-        show: true
-      }
-    })
-    var app_5 = new Vue({
-      el: '#app-5',
-      data: {
-        show: true
-      },
-      methods: {
-        beforeEnter: function (el) {
-          el.style.opacity = 0
-          el.style.transformOrigin = 'left'
-        },
-        enter: function (el, done) {
-          Velocity(el, {
-            opacity: 1,
-            fontSize: '1.4em',
-          }, {
-            duration: 300
-          })
-          Velocity(el, { fontSize: '1em' }, { complete: done })
-        },
-        leave: function (el, done) {
-          Velocity(el, { translateX: '15px', rotateZ: '50deg' }, { duration: 600 })
-          Velocity(el, { rotateZ: '100deg' }, { loop: 2 })
-          Velocity(el, {
-            rotateZ: '45deg',
-            translateY: '30px',
-            translateX: '30px',
-            opacity: 0
-          }, { complete: done })
+    <script>
+      var app_1 = new Vue({
+        el: '#app-1',
+        data: {
+          show: true
         }
-      }
-    })
-
-
-    Vue.component('transition-button', {
-      data: function () {
-        return {
-          buttonOn: true
+      })
+      var app_2 = new Vue({
+        el: '#app-2',
+        data: {
+          show: true
         }
-      },
-      props: ['className', 'idName', 'transitionName'],
-      computed: {
-        buttonMessage: function () {
-          switch (this.buttonOn) {
-            case true: return 'On'
-            case false: return 'Off'
+      })
+      var app_3 = new Vue({
+        el: '#app-3',
+        data: {
+          show: true
+        }
+      })
+      var app_4 = new Vue({
+        el: '#app-4',
+        data: {
+          show: true
+        }
+      })
+      var app_5 = new Vue({
+        el: '#app-5',
+        data: {
+          show: true
+        },
+        methods: {
+          beforeEnter: function(el) {
+            el.style.opacity = 0
+            el.style.transformOrigin = 'left'
+          },
+          enter: function(el, done) {
+            Velocity(
+              el,
+              {
+                opacity: 1,
+                fontSize: '1.4em'
+              },
+              {
+                duration: 300
+              }
+            )
+            Velocity(el, { fontSize: '1em' }, { complete: done })
+          },
+          leave: function(el, done) {
+            Velocity(
+              el,
+              { translateX: '15px', rotateZ: '50deg' },
+              { duration: 600 }
+            )
+            Velocity(el, { rotateZ: '100deg' }, { loop: 2 })
+            Velocity(
+              el,
+              {
+                rotateZ: '45deg',
+                translateY: '30px',
+                translateX: '30px',
+                opacity: 0
+              },
+              { complete: done }
+            )
+          }
+        }
+      })
+
+      Vue.component('transition-button', {
+        data: function() {
+          return {
+            buttonOn: true
           }
         },
-        buttonKey: function () {
-          switch (this.buttonOn) {
-            case true: return 'on'
-            case false: return 'off'
+        props: ['className', 'idName', 'transitionName'],
+        computed: {
+          buttonMessage: function() {
+            switch (this.buttonOn) {
+              case true:
+                return 'On'
+              case false:
+                return 'Off'
+            }
+          },
+          buttonKey: function() {
+            switch (this.buttonOn) {
+              case true:
+                return 'on'
+              case false:
+                return 'off'
+            }
           }
-        }
-      },
-      template: `
-      <div>
-        <br>
-        <div v-bind:id="idName">
-          <div v-bind:class="className">
-            <transition v-bind:name="transitionName">
-              <button @click="buttonOn = !buttonOn" v-bind:key="buttonKey + 'ifAbsolute'"
-                v-if="buttonKey === 'on' ? buttonOn : !buttonOn">
-                {{ buttonMessage }}
-              </button>
-            </transition>
-            <br>
-            <transition v-bind:name="transitionName">
-              <button @click="buttonOn = !buttonOn" v-bind:key="buttonKey + 'showAbsolute'"
-                v-show="buttonKey === 'on' ? buttonOn : !buttonOn">
-                {{ buttonMessage }}
-              </button>
-            </transition>
+        },
+        template: `
+        <div>
+          <br>
+          <div v-bind:id="idName">
+            <div v-bind:class="className">
+              <transition v-bind:name="transitionName">
+                <button
+                  @click="buttonOn = !buttonOn"
+                  v-bind:key="buttonKey + 'if'"
+                  v-if="buttonKey === 'on' ? buttonOn : !buttonOn"
+                >
+                  {{ buttonMessage }}
+                </button>
+              </transition>
+              <br>
+              <transition v-bind:name="transitionName">
+                <button
+                  @click="buttonOn = !buttonOn"
+                  v-bind:key="buttonKey + 'show'"
+                  v-show="buttonKey === 'on' ? buttonOn : !buttonOn"
+                >
+                  {{ buttonMessage }}
+                </button>
+              </transition>
+            </div>
           </div>
-        </div>
-        <br>
-        <p>{{ buttonOn }} - {{ buttonKey }}</p>
-        <br>
+          <br>
+          <p>{{ buttonOn }} - {{ buttonKey }}</p>
+          <br>
         </div>
       `
-    })
-    var app_6 = new Vue({
-      el: '#app-6',
-      data: {
-        // buttonOn: true
-        className: 'no-mode-translate-demo-wrapper',
-        idName: 'no-mode-translate-demo',
-        transitionName: 'no-mode-translate-demo'
-      },
-      // computed: {
-      //   buttonMessage: function () {
-      //     switch (this.buttonOn) {
-      //       case true: return 'On'
-      //       case false: return 'Off'
-      //     }
-      //   },
-      //   buttonKey: function () {
-      //     switch (this.buttonOn) {
-      //       case true: return 'on'
-      //       case false: return 'off'
-      //     }
-      //   }
-      // }
-    })
-  </script>
-</body>
-
+      })
+      var app_6 = new Vue({
+        el: '#app-6',
+        data: {
+          trButtonList: [
+            {
+              id: 1,
+              className: 'no-mode-demo-wrapper',
+              idName: 'no-mode-demo',
+              transitionName: 'no-mode-fade'
+            },
+            {
+              id: 2,
+              className: 'no-mode-absolute-demo-wrapper',
+              idName: 'no-mode-absolute-demo',
+              transitionName: 'no-mode-absolute-fade'
+            },
+            {
+              id: 3,
+              className: 'no-mode-translate-demo-wrapper',
+              idName: 'no-mode-translate-demo',
+              transitionName: 'no-mode-translate-fade'
+            }
+          ]
+        }
+      })
+    </script>
+  </body>
 </html>
