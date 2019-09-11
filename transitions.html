@@ -118,6 +118,36 @@
       .no-mode-translate-fade-leave-active {
         transform: translateX(-31px);
       }
+      .with-mode-fade-enter-active,
+      .with-mode-fade-leave-active {
+        transition: opacity 0.5s;
+      }
+      .with-mode-fade-enter,
+      .with-mode-fade-leave-active {
+        opacity: 0;
+      }
+
+      .in-out-translate-demo-wrapper {
+        position: relative;
+        height: 18px;
+      }
+      .in-out-translate-demo-wrapper button {
+        position: absolute;
+      }
+      .in-out-translate-fade-enter-active,
+      .in-out-translate-fade-leave-active {
+        transition: all 0.5s;
+      }
+      .in-out-translate-fade-enter,
+      .in-out-translate-fade-leave-active {
+        opacity: 0;
+      }
+      .in-out-translate-fade-enter {
+        transform: translateX(31px);
+      }
+      .in-out-translate-fade-leave-active {
+        transform: translateX(-31px);
+      }
     </style>
   </head>
 
@@ -176,8 +206,8 @@
         v-for="trButton in trButtonList"
         v-bind:key="trButton.id"
         v-bind:class-name="trButton.className"
-        v-bind:id-name="trButton.idName"
         v-bind:transition-name="trButton.transitionName"
+        v-bind:mode="trButton.mode"
       >
       </transition-button>
     </div>
@@ -250,61 +280,43 @@
           }
         }
       })
-
+      var commData = {
+        buttonOn: true
+      }
       Vue.component('transition-button', {
+        // data: function() {
+        //   return {
+        //     buttonOn: true
+        //   }
+        // },
         data: function() {
-          return {
-            buttonOn: true
-          }
+          return commData
         },
-        props: ['className', 'idName', 'transitionName'],
-        computed: {
-          buttonMessage: function() {
-            switch (this.buttonOn) {
-              case true:
-                return 'On'
-              case false:
-                return 'Off'
-            }
-          },
-          buttonKey: function() {
-            switch (this.buttonOn) {
-              case true:
-                return 'on'
-              case false:
-                return 'off'
-            }
-          }
+        props: {
+          className: '',
+          transitionName: '',
+          mode: ''
         },
         template: `
-        <div>
-          <br>
-          <div v-bind:id="idName">
+          <div>
             <div v-bind:class="className">
-              <transition v-bind:name="transitionName">
+              <transition v-bind:name="transitionName" v-bind:mode="mode">
                 <button
-                  @click="buttonOn = !buttonOn"
-                  v-bind:key="buttonKey + 'if'"
-                  v-if="buttonKey === 'on' ? buttonOn : !buttonOn"
+                  @click="buttonOn = false"
+                  key="on"
+                  v-if="buttonOn"
                 >
-                  {{ buttonMessage }}
+                  ON
+                </button>
+                <button
+                  v-else
+                  @click="buttonOn = true"
+                  key="off"
+                >
+                  OFF
                 </button>
               </transition>
-              <br>
-              <transition v-bind:name="transitionName">
-                <button
-                  @click="buttonOn = !buttonOn"
-                  v-bind:key="buttonKey + 'show'"
-                  v-show="buttonKey === 'on' ? buttonOn : !buttonOn"
-                >
-                  {{ buttonMessage }}
-                </button>
-              </transition>
-            </div>
           </div>
-          <br>
-          <p>{{ buttonOn }} - {{ buttonKey }}</p>
-          <br>
         </div>
       `
       })
@@ -315,20 +327,32 @@
             {
               id: 1,
               className: 'no-mode-demo-wrapper',
-              idName: 'no-mode-demo',
-              transitionName: 'no-mode-fade'
+              transitionName: 'no-mode-fade',
+              mode: ''
             },
             {
               id: 2,
               className: 'no-mode-absolute-demo-wrapper',
-              idName: 'no-mode-absolute-demo',
-              transitionName: 'no-mode-absolute-fade'
+              transitionName: 'no-mode-absolute-fade',
+              mode: ''
             },
             {
               id: 3,
               className: 'no-mode-translate-demo-wrapper',
-              idName: 'no-mode-translate-demo',
-              transitionName: 'no-mode-translate-fade'
+              transitionName: 'no-mode-translate-fade',
+              mode: ''
+            },
+            {
+              id: 4,
+              className: 'with-mode-demo-wrapper',
+              transitionName: 'with-mode-fade',
+              mode: 'out-in'
+            },
+            {
+              id: 5,
+              className: 'in-out-translate-demo-wrapper',
+              transitionName: 'in-out-translate-fade',
+              mode: 'in-out'
             }
           ]
         }
