@@ -176,6 +176,44 @@
       .flip-list-move {
         transition: transform 1s;
       }
+
+      .sudoku-container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 262px; /* (25 + 1) * 10 + 1(中间多1px) + 1(最后一个方块border-right 1px) */
+        margin-top: 10px;
+      }
+      .cell {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 25px;
+        height: 25px;
+        border: 1px solid #aaa;
+        border-right: 0px;
+        border-bottom: 0px;
+      }
+      .cell:nth-child(10n + 5) {
+        border-right: 1px solid rgb(255, 131, 48);
+      }
+      .cell:nth-child(10n + 6) {
+        border-left: 1px solid rgb(255, 131, 48);
+      }
+      .cell:nth-child(10n) {
+        border-right: 1px solid #aaa;
+      }
+      .cell:nth-child(n + 41):nth-child(-n + 50) {
+        border-bottom: 1px solid rgb(255, 131, 48);
+      }
+      .cell:nth-child(n + 51):nth-child(-n + 60) {
+        border-top: 1px solid rgb(255, 131, 48);
+      }
+      .cell:nth-child(n + 91):nth-child(-n + 100) {
+        border-bottom: 1px solid #aaa;
+      }
+      .cell-move {
+        transition: transform 1s;
+      }
     </style>
   </head>
 
@@ -256,7 +294,7 @@
     <div id="app-8">
       <button v-on:click="add">添加</button>
       <button v-on:click="remove">删除</button>
-      <button v-on:click="shuffle">打乱</button>
+      <button v-on:click="shuffle('items')">打乱items</button>
       <button v-on:click="reset">重置</button>
       <div>
         <transition-group name="list-complete" tag="p">
@@ -274,6 +312,19 @@
           <li v-for="item in items" v-bind:key="item">
             {{ item }}
           </li>
+        </transition-group>
+      </div>
+      <div>
+        <button v-on:click="shuffle('cells')">打乱cells</button>
+        <transition-group name="cell" tag="div" class="sudoku-container">
+          <div
+            v-for="cell in cells"
+            v-bind:key="cell.id"
+            class="cell"
+            v-bind:title="cell.id"
+          >
+            {{ cell.number }}
+          </div>
         </transition-group>
       </div>
     </div>
@@ -441,7 +492,13 @@
         el: '#app-8',
         data: {
           items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-          nextNum: 10
+          nextNum: 10,
+          cells: Array.apply(null, { length: 100 }).map(function(_, index) {
+            return {
+              id: index,
+              number: index % 10
+            }
+          })
         },
         methods: {
           randNum: function(m, n) {
@@ -460,8 +517,8 @@
           reset: function() {
             ;(this.items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), (this.nextNum = 10)
           },
-          shuffle: function() {
-            this.items = _.shuffle(this.items)
+          shuffle: function(arrName) {
+            this[arrName] = _.shuffle(this[arrName])
           }
         }
       })
