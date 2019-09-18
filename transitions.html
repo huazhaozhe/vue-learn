@@ -62,6 +62,7 @@
       .no-mode-fade-leave-active {
         transition: opacity 0.5s;
       }
+
       .no-mode-fade-enter,
       .no-mode-fade-leave-active {
         opacity: 0;
@@ -71,13 +72,16 @@
         position: relative;
         height: 18px;
       }
+
       .no-mode-absolute-demo-wrapper button {
         position: absolute;
       }
+
       .no-mode-absolute-fade-enter-active,
       .no-mode-absolute-fade-leave-active {
         transition: opacity 0.5s;
       }
+
       .no-mode-absolute-fade-enter,
       .no-mode-absolute-fade-leave-active {
         opacity: 0;
@@ -87,20 +91,25 @@
         position: relative;
         height: 18px;
       }
+
       .no-mode-translate-demo-wrapper button {
         position: absolute;
       }
+
       .no-mode-translate-fade-enter-active,
       .no-mode-translate-fade-leave-active {
         transition: all 1s;
       }
+
       .no-mode-translate-fade-enter,
       .no-mode-translate-fade-leave-active {
         opacity: 0;
       }
+
       .no-mode-translate-fade-enter {
         transform: translateX(31px);
       }
+
       .no-mode-translate-fade-leave-active {
         transform: translateX(-31px);
       }
@@ -109,6 +118,7 @@
       .with-mode-fade-leave-active {
         transition: opacity 0.5s;
       }
+
       .with-mode-fade-enter,
       .with-mode-fade-leave-active {
         opacity: 0;
@@ -118,20 +128,25 @@
         position: relative;
         height: 18px;
       }
+
       .in-out-translate-demo-wrapper button {
         position: absolute;
       }
+
       .in-out-translate-fade-enter-active,
       .in-out-translate-fade-leave-active {
         transition: all 0.5s;
       }
+
       .in-out-translate-fade-enter,
       .in-out-translate-fade-leave-active {
         opacity: 0;
       }
+
       .in-out-translate-fade-enter {
         transform: translateX(31px);
       }
+
       .in-out-translate-fade-leave-active {
         transform: translateX(-31px);
       }
@@ -140,6 +155,7 @@
       .component-fade-leave-active {
         transition: opacity 0.3s ease;
       }
+
       .component-fade-enter,
       .component-fade-leave-to {
         opacity: 0;
@@ -149,10 +165,12 @@
         display: inline-block;
         margin-right: 10px;
       }
+
       .list-enter-active,
       .list-leave-active {
         transition: all 1s;
       }
+
       .list-enter,
       .list-leave-to {
         opacity: 0;
@@ -164,11 +182,16 @@
         display: inline-block;
         margin-right: 10px;
       }
-      .list-complete-enter, .list-complete-leave-to
-/* .list-complete-leave-active for below version 2.1.8 */ {
+
+      .list-complete-enter,
+    .list-complete-leave-to
+
+    /* .list-complete-leave-active for below version 2.1.8 */
+ {
         opacity: 0;
         transform: translateY(30px);
       }
+
       .list-complete-leave-active {
         position: absolute;
       }
@@ -178,11 +201,14 @@
       }
 
       .sudoku-container {
+        --squareNum: 10;
         display: flex;
         flex-wrap: wrap;
-        width: 262px; /* (25 + 1) * 10 + 1(中间多1px) + 1(最后一个方块border-right 1px) */
+        width: calc((25px + 1px) * var(--squareNum) + 2px);
+        /* (25 + 1) * 10 + 1(中间多1px) + 1(最后一个方块border-right 1px) */
         margin-top: 10px;
       }
+
       .cell {
         display: flex;
         justify-content: space-around;
@@ -193,24 +219,55 @@
         border-right: 0px;
         border-bottom: 0px;
       }
-      .cell:nth-child(10n + 5) {
+
+      /* .cell:nth-child(10n + 5) {
+        border-right: 1px solid rgb(255, 131, 48);
+      } */
+
+      .cell-b-r-dye {
         border-right: 1px solid rgb(255, 131, 48);
       }
-      .cell:nth-child(10n + 6) {
+
+      /* .cell:nth-child(10n + 6) {
+        border-left: 1px solid rgb(255, 131, 48);
+      } */
+
+      .cell-b-l-dye {
         border-left: 1px solid rgb(255, 131, 48);
       }
-      .cell:nth-child(10n) {
+
+      /* .cell:nth-child(10n) {
+        border-right: 1px solid #aaa;
+      } */
+
+      .cell-b-r {
         border-right: 1px solid #aaa;
       }
-      .cell:nth-child(n + 41):nth-child(-n + 50) {
+
+      /* .cell:nth-child(n + 41):nth-child(-n + 50) {
+        border-bottom: 1px solid rgb(255, 131, 48);
+      } */
+
+      .cell-b-b-dye {
         border-bottom: 1px solid rgb(255, 131, 48);
       }
-      .cell:nth-child(n + 51):nth-child(-n + 60) {
+
+      /* .cell:nth-child(n + 51):nth-child(-n + 60) {
+        border-top: 1px solid rgb(255, 131, 48);
+      } */
+
+      .cell-b-t-dye {
         border-top: 1px solid rgb(255, 131, 48);
       }
-      .cell:nth-child(n + 91):nth-child(-n + 100) {
+
+      /* .cell:nth-child(n + 91):nth-child(-n + 100) {
+        border-bottom: 1px solid #aaa;
+      } */
+
+      .cell-b-b {
         border-bottom: 1px solid #aaa;
       }
+
       .cell-move {
         transition: transform 1s;
       }
@@ -315,12 +372,20 @@
         </transition-group>
       </div>
       <div>
+        <input v-model="squareNum" />
+        <button v-on:click="changeSquare">更改方块</button>
         <button v-on:click="shuffle('cells')">打乱cells</button>
-        <transition-group name="cell" tag="div" class="sudoku-container">
+        <transition-group
+          name="cell"
+          tag="div"
+          class="sudoku-container"
+          ref="square"
+        >
           <div
             v-for="cell in cells"
             v-bind:key="cell.id"
             class="cell"
+            v-bind:class="addClassName(cell)"
             v-bind:title="cell.id"
           >
             {{ cell.number }}
@@ -493,12 +558,84 @@
         data: {
           items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
           nextNum: 10,
-          cells: Array.apply(null, { length: 100 }).map(function(_, index) {
+          cells: Array.apply(null, {
+            length: 100
+          }).map(function(_, index) {
             return {
               id: index,
               number: index % 10
             }
-          })
+          }),
+          squareNum: 10,
+          cellClassNameIndex: {
+            'cell-b-r-dye': {
+              arr: [5, 15, 25, 35, 45, 55, 65, 75, 85, 95],
+              func: function(squareNum) {
+                var indexList = []
+                for (var i = 0; i < squareNum; i++) {
+                  indexList.push(i * squareNum + squareNum / 2)
+                }
+                return indexList
+              }
+            },
+            'cell-b-l-dye': {
+              arr: [6, 16, 26, 36, 46, 56, 66, 76, 86, 96],
+              func: function(squareNum) {
+                var indexList = []
+                for (var i = 0; i < squareNum; i++) {
+                  indexList.push(i * squareNum + squareNum / 2 + 1)
+                }
+                return indexList
+              }
+            },
+            'cell-b-r': {
+              arr: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+              func: function(squareNum) {
+                var indexList = []
+                for (var i = 1; i <= squareNum; i++) {
+                  indexList.push(i * squareNum)
+                }
+                return indexList
+              }
+            },
+            'cell-b-b-dye': {
+              arr: [41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+              func: function(squareNum) {
+                var indexList = []
+                var stopIndex = (squareNum * squareNum) / 2 - squareNum + 1
+                for (var i = (squareNum * squareNum) / 2; i >= stopIndex; i--) {
+                  indexList.push(i)
+                }
+                return indexList
+              }
+            },
+            'cell-b-t-dye': {
+              arr: [51, 52, 53, 54, 55, 56, 57, 58, 59, 60],
+              func: function(squareNum) {
+                var indexList = []
+                var stopIndex = (squareNum * squareNum) / 2 + squareNum
+                for (
+                  var i = (squareNum * squareNum) / 2 + 1;
+                  i <= stopIndex;
+                  i++
+                ) {
+                  indexList.push(i)
+                }
+                return indexList
+              }
+            },
+            'cell-b-b': {
+              arr: [91, 92, 93, 94, 95, 96, 97, 98, 99, 100],
+              func: function(squareNum) {
+                var indexList = []
+                var stopIndex = squareNum * squareNum - squareNum + 1
+                for (var i = squareNum * squareNum; i >= stopIndex; i--) {
+                  indexList.push(i)
+                }
+                return indexList
+              }
+            }
+          }
         },
         methods: {
           randNum: function(m, n) {
@@ -519,6 +656,33 @@
           },
           shuffle: function(arrName) {
             this[arrName] = _.shuffle(this[arrName])
+          },
+          changeSquare: function() {
+            var squareNum = Number(this.squareNum)
+            this.$refs.square.$el.style.setProperty('--squareNum', squareNum)
+            this.cells = Array.apply(null, {
+              length: squareNum * squareNum
+            }).map(function(_, index) {
+              return {
+                id: index,
+                number: index % squareNum
+              }
+            })
+            for (var key in this.cellClassNameIndex) {
+              this.cellClassNameIndex[key].arr = this.cellClassNameIndex[
+                key
+              ].func(squareNum)
+            }
+          },
+          addClassName: function(cell) {
+            var currentId = this.cells.indexOf(cell) + 1
+            var classNameList = []
+            for (var key in this.cellClassNameIndex) {
+              if (this.cellClassNameIndex[key].arr.indexOf(currentId) != -1) {
+                classNameList.push(key)
+              }
+            }
+            return classNameList
           }
         }
       })
