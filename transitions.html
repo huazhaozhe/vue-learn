@@ -393,6 +393,56 @@
           </div>
         </transition-group>
       </div>
+      <br />
+      <div>
+        <input v-model="query" />
+        <transition-group
+          name="staggered-fade"
+          tag="ul"
+          v-bind:css="false"
+          v-on:before-enter="beforeEnter"
+          v-on:enter="enter"
+          v-on:leave="leave"
+        >
+          <li
+            v-for="(man, index) in manComputedList"
+            v-bind:key="man.key"
+            v-bind:data-index="index"
+          >
+            {{ man.msg }}
+          </li>
+        </transition-group>
+      </div>
+    </div>
+
+    <div id="dynamic-fade-demo">
+      Fade in:
+      <input
+        type="range"
+        v-model="fadeInDuration"
+        v-bind:min="minFadeDuration"
+        v-bind:max="maxFadeDuration"
+      />
+      {{ fadeInDuration }} Fade out:
+      <input
+        type="range"
+        v-model="fadeOutDuration"
+        v-bind:min="minFadeDuration"
+        v-bind:max="maxFadeDuration"
+      />
+      {{ fadeOutDuration }}
+
+      <transition
+        v-bind:css="false"
+        v-on:before-enter="beforeEnter"
+        v-on:enter="enter"
+        v-on:leave="leave"
+      >
+        <p v-show="show">hello</p>
+      </transition>
+      <button v-on:click="stop = !stop">
+        {{ buttonName }}
+      </button>
     </div>
 
     <script>
@@ -630,12 +680,46 @@
               }
             },
             allIndex: []
-          }
+          },
+          query: '',
+          men: [
+            { msg: 'Bruce Lee', key: 1 },
+            { msg: 'Jackie Chan', key: 2 },
+            { msg: 'Chuck Norris', key: 3 },
+            { msg: 'Jet Li', key: 4 },
+            { msg: 'Kung Fury', key: 5 }
+          ]
         },
         mounted: function() {
           this.changeSquare()
         },
+        computed: {
+          manComputedList: function() {
+            var vm = this
+            return this.men.filter(function(item) {
+              return (
+                item.msg.toLowerCase().indexOf(vm.query.toLowerCase()) !== -1
+              )
+            })
+          }
+        },
         methods: {
+          beforeEnter: function(el) {
+            el.style.opacity = 0
+            el.style.height = 0
+          },
+          enter: function(el, done) {
+            var delay = el.dataset.index * 150
+            setTimeout(function() {
+              Velocity(el, { opacity: 1, height: '1.6em' }, { complete: done })
+            }, delay)
+          },
+          leave: function(el, done) {
+            var delay = el.dataset.index * 150
+            setTimeout(function() {
+              Velocity(el, { opacity: 0, height: 0 }, { complete: done })
+            }, delay)
+          },
           randNum: function(m, n) {
             return Math.floor(Math.random() * (n - m + 1) + m)
           },
@@ -706,6 +790,64 @@
               }
             }
             return classNameList
+          }
+        }
+      })
+      var app_dynamic = new Vue({
+        el: '#dynamic-fade-demo',
+        data: {
+          show: true,
+          fadeInDuration: 1000,
+          fadeOutDuration: 1000,
+          maxFadeDuration: 1500,
+          minFadeDuration: 0,
+          stop: false
+        },
+        mounted: function() {
+
+        },
+        methods: {
+          beforeEnter: function(el) {
+            el.style.opacity = 0
+          },
+          enter: function(el, done) {
+            var vm = this
+            Velocity(
+              el,
+              { opacity: 1 },
+              {
+                duration: this.fadeInDuration,
+                complete: function() {
+                  done()
+                  if (!vm.stop) vm.show = false
+                }
+              }
+            )
+          },
+          leave: function(el, done) {
+            var vm = this
+            Velocity(
+              el,
+              { opacity: 0 },
+              {
+                duration: this.fadeOutDuration,
+                complete: function() {
+                  done()
+                  if (!vm.stop) vm.show = true
+                }
+              }
+            )
+          }
+        },
+        computed: {
+          buttonName: function() {
+            if (this.stop) {
+              this.show = true
+              return '开始'
+            } else {
+              this.show = false
+              return '停止'
+            }
           }
         }
       })
