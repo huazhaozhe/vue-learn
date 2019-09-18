@@ -699,10 +699,10 @@
           },
           addClassName: function(index) {
             var currentId = index + 1
-            var classNameList = []
             if (this.cellClassNameIndex.allIndex.indexOf(currentId) == -1) {
-              return classNameList
+              return
             }
+            var classNameList = []
             for (var key in this.cellClassNameIndex) {
               if (
                 key != 'allIndex' &&
