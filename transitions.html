@@ -204,7 +204,7 @@
         --squareNum: 10;
         display: flex;
         flex-wrap: wrap;
-        width: calc((25px + 1px) * var(--squareNum) + 2px);
+        width: calc((40px + 1px) * var(--squareNum) + 2px);
         /* (25 + 1) * 10 + 1(中间多1px) + 1(最后一个方块border-right 1px) */
         margin-top: 10px;
       }
@@ -213,8 +213,8 @@
         display: flex;
         justify-content: space-around;
         align-items: center;
-        width: 25px;
-        height: 25px;
+        width: 40px;
+        height: 40px;
         border: 1px solid #aaa;
         border-right: 0px;
         border-bottom: 0px;
@@ -382,10 +382,10 @@
           ref="square"
         >
           <div
-            v-for="cell in cells"
+            v-for="(cell, index) in cells"
             v-bind:key="cell.id"
             class="cell"
-            v-bind:class="addClassName(cell)"
+            v-bind:class="addClassName(index)"
             v-bind:title="cell.id"
           >
             {{ cell.number }}
@@ -634,7 +634,69 @@
                 }
                 return indexList
               }
-            }
+            },
+            allIndex: [
+              5,
+              15,
+              25,
+              35,
+              45,
+              55,
+              65,
+              75,
+              85,
+              95,
+              6,
+              16,
+              26,
+              36,
+              46,
+              56,
+              66,
+              76,
+              86,
+              96,
+              10,
+              20,
+              30,
+              40,
+              50,
+              60,
+              70,
+              80,
+              90,
+              100,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96,
+              97,
+              98,
+              99,
+              100
+            ]
           }
         },
         methods: {
@@ -655,10 +717,34 @@
             ;(this.items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), (this.nextNum = 10)
           },
           shuffle: function(arrName) {
-            this[arrName] = _.shuffle(this[arrName])
+            // var vm = this
+            for (
+              var j, x, i = this[arrName].length;
+              i;
+              j = parseInt(Math.random() * i),
+                x = this[arrName][--i],
+                // this[arrName][i] = this[arrName][j],
+                this[arrName].splice(i, 1, this[arrName][j]),
+                // vm.$set(vm[arrName], i, this[arrName][j]),
+                // this[arrName][j] = x
+                this[arrName].splice(j, 1, x)
+              // vm.$set(vm[arrName], j, x)
+            );
+            // this[arrName] = _.shuffle(this[arrName])
           },
           changeSquare: function() {
             var squareNum = Number(this.squareNum)
+            this.cellClassNameIndex.allIndex = []
+            for (var key in this.cellClassNameIndex) {
+              if (key != 'allIndex') {
+                this.cellClassNameIndex[key].arr = this.cellClassNameIndex[
+                  key
+                ].func(squareNum)
+                this.cellClassNameIndex.allIndex = this.cellClassNameIndex.allIndex.concat(
+                  this.cellClassNameIndex[key].arr
+                )
+              }
+            }
             this.$refs.square.$el.style.setProperty('--squareNum', squareNum)
             this.cells = Array.apply(null, {
               length: squareNum * squareNum
@@ -668,17 +754,18 @@
                 number: index % squareNum
               }
             })
-            for (var key in this.cellClassNameIndex) {
-              this.cellClassNameIndex[key].arr = this.cellClassNameIndex[
-                key
-              ].func(squareNum)
-            }
           },
-          addClassName: function(cell) {
-            var currentId = this.cells.indexOf(cell) + 1
+          addClassName: function(index) {
+            var currentId = index + 1
             var classNameList = []
+            if (this.cellClassNameIndex.allIndex.indexOf(currentId) == -1) {
+              return classNameList
+            }
             for (var key in this.cellClassNameIndex) {
-              if (this.cellClassNameIndex[key].arr.indexOf(currentId) != -1) {
+              if (
+                key != 'allIndex' &&
+                this.cellClassNameIndex[key].arr.indexOf(currentId) != -1
+              ) {
                 classNameList.push(key)
               }
             }
