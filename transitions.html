@@ -943,6 +943,7 @@
       // }
       function valueToPoint(value, index, total, squareWidth) {
         // 已知平面直角坐标系点A(x1, y1), A不为原点, 求该点围绕原点旋转α后的点(x2, y2)?
+        // PS: 不用反三角函数?
         var r = squareWidth / 2
         var angle = ((Math.PI * 2) / total) * index - Math.PI / 2
         return {
