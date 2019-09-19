@@ -483,15 +483,12 @@
       <p>{{ tweenedCSSColor }}</p>
       <br />
       <svg v-bind:width="squareWidth" v-bind:height="squareWidth">
-        <polygon
-          v-bind:points="points"
-        ></polygon>
-        <!-- <rect
-          style="fill: transparent; stroke:rgb(0,0,0)"
-          v-bind:width="squareWidth"
-          v-bind:height="squareWidth"
-        ></rect> -->
-        <circle :cx="squareWidth / 2" :cy="squareWidth / 2" :r="squareWidth / 2"></circle>
+        <polygon v-bind:points="points"></polygon>
+        <circle
+          v-bind:cx="squareWidth / 2"
+          v-bind:cy="squareWidth / 2"
+          v-bind:r="squareWidth / 2"
+        ></circle>
       </svg>
       <label>大小: {{ squareWidth }}</label>
       <input
@@ -1034,7 +1031,8 @@
           },
           newRandomValue: function() {
             return Math.ceil(
-              this.minRadius + Math.random() * (this.squareWidth / 2 - this.minRadius)
+              this.minRadius +
+                Math.random() * (this.squareWidth / 2 - this.minRadius)
             )
           },
           randomizeStats: function() {
@@ -1086,9 +1084,9 @@
           updateInterval: function() {
             this.resetInterval()
           },
-          squareWidth: function(newSquareWidth, oldSquareWidth){
+          squareWidth: function(newSquareWidth, oldSquareWidth) {
             var rate = newSquareWidth / oldSquareWidth
-            for (var i=0; i<this.stats.length; i++){
+            for (var i = 0; i < this.stats.length; i++) {
               this.stats.splice(i, 1, this.stats[i] * rate)
               // this.stats[i] *= rate
             }
