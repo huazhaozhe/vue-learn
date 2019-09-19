@@ -9,6 +9,9 @@
     <script src="vue.js"></script>
     <script src="velocity.min.js"></script>
     <script src="lodash.min.js"></script>
+    <script src="TweenMax.min.js"></script>
+    <script src="tween.js"></script>
+    <script src="color.js"></script>
     <style>
       .fade-enter-active,
       .fade-leave-active {
@@ -272,6 +275,22 @@
         transition: transform 1s;
         border: 1px solid #aaa;
       }
+
+      svg {
+        display: block;
+      }
+      polygon {
+        fill: #41b883;
+      }
+      circle {
+        fill: transparent;
+        stroke: #35495e;
+      }
+      .input-range {
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+      }
     </style>
   </head>
 
@@ -443,6 +462,69 @@
       <button v-on:click="stop = !stop">
         {{ buttonName }}
       </button>
+    </div>
+
+    <div id="trans-state">
+      <h3>状态过渡</h3>
+      <input v-model.number="number" type="number" step="20" />
+      <p>{{ animatedNumber }}</p>
+      <br />
+      <input
+        v-model="colorQuery"
+        v-on:keyup.enter="updateColor"
+        placeholder="输入颜色值,默认#000000"
+      />
+      <button v-on:click="updateColor">更新</button>
+      <p>预览</p>
+      <span
+        style="display: inline-block; width: 50px; height: 50px;"
+        v-bind:style="{ backgroundColor: tweenedCSSColor }"
+      ></span>
+      <p>{{ tweenedCSSColor }}</p>
+      <br />
+      <svg v-bind:width="squareWidth" v-bind:height="squareWidth">
+        <polygon
+          v-bind:points="points"
+        ></polygon>
+        <!-- <rect
+          style="fill: transparent; stroke:rgb(0,0,0)"
+          v-bind:width="squareWidth"
+          v-bind:height="squareWidth"
+        ></rect> -->
+        <circle :cx="squareWidth / 2" :cy="squareWidth / 2" :r="squareWidth / 2"></circle>
+      </svg>
+      <label>大小: {{ squareWidth }}</label>
+      <input
+        class="input-range"
+        type="range"
+        min="100"
+        max="1000"
+        v-model.number="squareWidth"
+      />
+      <label>边数: {{ sides }}</label>
+      <input
+        class="input-range"
+        type="range"
+        min="3"
+        max="360"
+        v-model.number="sides"
+      />
+      <label>最小半径: {{ minRadius }}%</label>
+      <input
+        class="input-range"
+        type="range"
+        min="0"
+        max="95"
+        v-model.number="minRadius"
+      />
+      <label>更新间隔: {{ updateInterval }} 毫秒</label>
+      <input
+        class="input-range"
+        type="range"
+        min="0"
+        max="10000"
+        v-model.number="updateInterval"
+      />
     </div>
 
     <script>
@@ -803,9 +885,7 @@
           minFadeDuration: 0,
           stop: false
         },
-        mounted: function() {
-
-        },
+        mounted: function() {},
         methods: {
           beforeEnter: function(el) {
             el.style.opacity = 0
@@ -847,6 +927,170 @@
             } else {
               this.show = false
               return '停止'
+            }
+          }
+        }
+      })
+      var Color = net.brehaut.Color
+      // function valueToPoint(value, index, total) {
+      //   var y = value * 0.9
+      //   var angle = ((Math.PI * 2) / total) * index
+      //   var cos = Math.cos(angle)
+      //   var sin = Math.sin(angle)
+      //   var tx = y * sin + 100
+      //   var ty = y * (-cos) + 100
+      //   return {
+      //     x: tx,
+      //     y: ty
+      //   }
+      // }
+      function valueToPoint(value, index, total, squareWidth) {
+        var y = value
+        var angle1 = ((Math.PI * 2) / total) * index
+        // var x1 = y * Math.cos(angle1)
+        // var y1 = y * Math.sin(angle1)
+        // if (x1 >= 0 && y1 == 0) {
+        //   angle2 = 0
+        // } else if (x1 == 0 && y1 > 0) {
+        //   angle2 = Math.PI / 2
+        // } else if (x1 < 0 && y1 == 0) {
+        //   angle2 = Math.PI
+        // } else if (x1 == 0 && y1 < 0) {
+        //   angle2 = Math.PI * 3 / 2
+        // } else {
+        //   angle2 = Math.atan(y1 / x1)
+        // }
+        var x2 = y * Math.cos(angle1 - Math.PI / 2) + squareWidth / 2
+        var y2 = y * Math.sin(angle1 - Math.PI / 2) + squareWidth / 2
+        return {
+          x: x2,
+          y: y2
+        }
+      }
+      function generatePoints(stats, squareWidth) {
+        var total = stats.length
+        return stats
+          .map(function(stat, index) {
+            var point = valueToPoint(stat, index, total, squareWidth)
+            return point.x + ',' + point.y
+          })
+          .join(' ')
+      }
+      var trans_state_app = new Vue({
+        el: '#trans-state',
+        data: {
+          number: 20,
+          tweenedNumber: 20,
+          colorQuery: '',
+          color: {
+            red: 0,
+            green: 0,
+            blue: 0,
+            alpha: 1
+          },
+          tweenedColor: {},
+          defaultSides: 3,
+          stats: [],
+          points: '',
+          sides: 3,
+          minRadius: 0,
+          interval: null,
+          updateInterval: 1000,
+          squareWidth: 200
+        },
+        created: function() {
+          this.tweenedColor = Object.assign({}, this.color)
+          this.stats = Array.apply(null, { length: this.defaultSides }).map(
+            function() {
+              return this.squareWidth / 2
+            }
+          )
+          this.points = generatePoints(this.stats, this.squareWidth)
+        },
+        mounted: function() {
+          this.resetInterval()
+        },
+        computed: {
+          animatedNumber: function() {
+            return this.tweenedNumber.toFixed(0)
+          },
+          tweenedCSSColor: function() {
+            return new Color({
+              red: this.tweenedColor.red,
+              green: this.tweenedColor.green,
+              blue: this.tweenedColor.blue,
+              alpha: this.tweenedColor.alpha
+            }).toCSS()
+          }
+        },
+        methods: {
+          updateColor: function() {
+            if (this.colorQuery == '') {
+              this.color = new Color('#000000').toRGB()
+            } else {
+              this.color = new Color(this.colorQuery).toRGB()
+              this.colorQuery = ''
+            }
+          },
+          newRandomValue: function() {
+            return Math.ceil(
+              this.minRadius + Math.random() * (this.squareWidth / 2 - this.minRadius)
+            )
+          },
+          randomizeStats: function() {
+            var vm = this
+            this.stats = this.stats.map(function() {
+              return vm.newRandomValue()
+            })
+          },
+          resetInterval: function() {
+            var vm = this
+            clearInterval(this.interval)
+            this.randomizeStats()
+            this.interval = setInterval(function() {
+              vm.randomizeStats()
+            }, this.updateInterval)
+          }
+        },
+        watch: {
+          number: function(newValue) {
+            TweenLite.to(this.$data, 0.5, { tweenedNumber: newValue })
+          },
+          color: function() {
+            function animate() {
+              if (TWEEN.update()) {
+                requestAnimationFrame(animate)
+              }
+            }
+            new TWEEN.Tween(this.tweenedColor).to(this.color, 10000).start()
+            animate()
+          },
+          sides: function(newSides, oldSides) {
+            var sidesDifference = newSides - oldSides
+            if (sidesDifference > 0) {
+              for (var i = 1; i <= sidesDifference; i++) {
+                this.stats.push(this.newRandomValue())
+              }
+            } else {
+              var absoluteSidesDifference = Math.abs(sidesDifference)
+              for (var i = 1; i <= absoluteSidesDifference; i++) {
+                this.stats.shift()
+              }
+            }
+          },
+          stats: function(newStats) {
+            TweenLite.to(this.$data, this.updateInterval / 1000, {
+              points: generatePoints(newStats, this.squareWidth)
+            })
+          },
+          updateInterval: function() {
+            this.resetInterval()
+          },
+          squareWidth: function(newSquareWidth, oldSquareWidth){
+            var rate = newSquareWidth / oldSquareWidth
+            for (var i=0; i<this.stats.length; i++){
+              this.stats.splice(i, 1, this.stats[i] * rate)
+              // this.stats[i] *= rate
             }
           }
         }
