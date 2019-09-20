@@ -1006,16 +1006,17 @@
           stats: [],
           points: '',
           sides: 3,
-          minRadius: 0,
+          minRadius: 50,
           interval: null,
           updateInterval: 1000,
           squareWidth: 200
         },
         created: function() {
           this.tweenedColor = Object.assign({}, this.color)
+          var vm = this
           this.stats = Array.apply(null, { length: this.defaultSides }).map(
             function() {
-              return this.squareWidth / 2
+              return vm.squareWidth / 2
             }
           )
           this.points = generatePoints(this.stats, this.squareWidth)
