@@ -285,6 +285,7 @@
       circle {
         fill: transparent;
         stroke: #35495e;
+        stroke-width: 1;
       }
       .input-range {
         display: block;
@@ -489,6 +490,34 @@
           v-bind:cy="squareWidth / 2"
           v-bind:r="squareWidth / 2"
         ></circle>
+        <circle
+          v-bind:cx="squareWidth / 2"
+          v-bind:cy="squareWidth / 2"
+          v-bind:r="minRadius / 100 * squareWidth / 2"
+          style="stroke-width:0.5"
+        ></circle>
+        <line
+          v-for="point in circlePoints"
+          v-bind:x1="squareWidth / 2"
+          v-bind:y1="squareWidth / 2"
+          v-bind:x2="point.x"
+          v-bind:y2="point.y"
+          style="stroke:rgb(99,99,99);stroke-width:0.5"
+        />
+        <line
+          x1="0"
+          v-bind:y1="squareWidth / 2"
+          v-bind:x2="squareWidth"
+          v-bind:y2="squareWidth / 2"
+          style="stroke:rgb(255, 131, 48);stroke-width:1"
+        />
+        <line
+          v-bind:x1="squareWidth / 2"
+          y1="0"
+          v-bind:x2="squareWidth / 2"
+          v-bind:y2="squareWidth"
+          style="stroke:rgb(255, 131, 48);stroke-width:1"
+        />
       </svg>
       <label>大小: {{ squareWidth }}</label>
       <input
@@ -1005,6 +1034,20 @@
               blue: this.tweenedColor.blue,
               alpha: this.tweenedColor.alpha
             }).toCSS()
+          },
+          circlePoints: function() {
+            points = []
+            for (var i = 0; i < this.sides; i++) {
+              points.push(
+                valueToPoint(
+                  this.squareWidth / 2,
+                  i,
+                  this.sides,
+                  this.squareWidth
+                )
+              )
+            }
+            return points
           }
         },
         methods: {
