@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>vue-console</title>
+    <script src="vue.js"></script>
+  </head>
+
+  <body>
+    <div>
+      <h3>自定义指令</h3>
+      <div id="implest-directive-example">
+        <input v-focus />
+        <input v-focus />
+      </div>
+      <script>
+        Vue.directive('focus', {
+          inserted: function(el) {
+            el.focus()
+          }
+        })
+        var implest_directive_app = new Vue({
+          el: '#implest-directive-example'
+        })
+      </script>
+      <h3>钩子函数参数</h3>
+      <div id="hook-arguments-example" v-demo:foo.a.b="message"></div>
+      <script>
+        Vue.directive('demo', {
+          bind: function(el, binding, vnode) {
+            var s = JSON.stringify
+            el.innerHTML =
+              'name: ' +
+              s(binding.name) +
+              '<br>' +
+              'value: ' +
+              s(binding.value) +
+              '<br>' +
+              'expression: ' +
+              s(binding.expression) +
+              '<br>' +
+              'argument: ' +
+              s(binding.arg) +
+              '<br>' +
+              'modifiers: ' +
+              s(binding.modifiers) +
+              '<br>' +
+              'vnode keys: ' +
+              Object.keys(vnode).join(', ')
+          }
+        })
+        var hook_arguments_app = new Vue({
+          el: '#hook-arguments-example',
+          data: {
+            message: 'hello!'
+          }
+        })
+      </script>
+      <style>
+        #dynamic-arguments-example {
+          height: 200px;
+          color: #304455;
+        }
+      </style>
+      <h3>动态指令参数</h3>
+      <div id="dynamic-arguments-example">
+        <p v-pin:[direction]="pinValue">
+          距离 {{ direction }} 有 {{ pinValue }}px
+        </p>
+      </div>
+      <script>
+        Vue.directive('pin', {
+          bind: function(el, binding, vnode) {
+            el.style.position = 'fixed'
+            el.style[binding.arg] = binding.value + 'px'
+          }
+        })
+        var dynamic_arguments_app = new Vue({
+          el: '#dynamic-arguments-example',
+          data: {
+            direction: 'right',
+            pinValue: 300
+          }
+        })
+      </script>
+    </div>
+
+    <div>
+      <div id="render-example">
+        <anchored-heading>
+          h1
+        </anchored-heading>
+        <anchored-heading level="2">
+          h2
+        </anchored-heading>
+        <anchored-heading v-bind:level="level">
+          h3
+        </anchored-heading>
+      </div>
+      <script>
+        Vue.component('anchored-heading', {
+          props: {
+            level: {
+              default: 1
+            }
+          },
+          render: function(createElement) {
+            return createElement('h' + this.level, this.$slots.default)
+          }
+        })
+        var render_app = new Vue({
+          el: '#render-example',
+          data: {
+            level: 3
+          }
+        })
+      </script>
+    </div>
+  </body>
+</html>
